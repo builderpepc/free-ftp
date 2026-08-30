@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-/** Test plan cases 9.6 and 9.7 — defaults and validation. */
+/** Protocol defaults, profile validation and display ordering. */
 class ServerProfileValidationTest {
 
     private fun profile(
@@ -16,7 +16,7 @@ class ServerProfileValidationTest {
         credentials: Credentials = Credentials.Password("bob", "hunter2"),
     ) = ServerProfile("id", name, protocol, host, port, credentials)
 
-    @Test // 9.6
+    @Test
     fun `each protocol has the conventional default port`() {
         assertEquals(21, Protocol.FTP.defaultPort)
         assertEquals(21, Protocol.FTPS_EXPLICIT.defaultPort)
@@ -24,27 +24,27 @@ class ServerProfileValidationTest {
         assertEquals(22, Protocol.SFTP.defaultPort)
     }
 
-    @Test // 9.7
+    @Test
     fun `a well formed profile validates`() {
         assertTrue(profile().isValid)
         assertEquals(emptyList<ValidationError>(), profile().validate())
     }
 
-    @Test // 9.7
+    @Test
     fun `blank host is rejected with a field level error`() {
         val errors = profile(host = "  ").validate()
         assertEquals(listOf("host"), errors.map { it.field })
         assertTrue(errors.single().message.isNotBlank())
     }
 
-    @Test // 9.7
+    @Test
     fun `out of range ports are rejected`() {
         assertEquals(listOf("port"), profile(port = 0).validate().map { it.field })
         assertEquals(listOf("port"), profile(port = 65_536).validate().map { it.field })
         assertTrue(profile(port = 65_535).isValid)
     }
 
-    @Test // 9.7
+    @Test
     fun `anonymous credentials are rejected for SFTP but fine for FTP`() {
         assertTrue(profile(protocol = Protocol.FTP, credentials = Credentials.Anonymous).isValid)
         val sftp = profile(protocol = Protocol.SFTP, port = 22, credentials = Credentials.Anonymous)
@@ -52,7 +52,7 @@ class ServerProfileValidationTest {
         assertEquals(listOf("credentials"), sftp.validate().map { it.field })
     }
 
-    @Test // 10.5
+    @Test
     fun `credential toString never reveals the secret`() {
         val password = Credentials.Password("bob", "s3cr3t-value")
         assertFalse(password.toString().contains("s3cr3t-value"))
@@ -61,7 +61,7 @@ class ServerProfileValidationTest {
         assertFalse(key.toString().contains("passphrase-value"))
     }
 
-    @Test // 5.13
+    @Test
     fun `display ordering puts directories first then case insensitive names`() {
         val entries = listOf(
             RemoteFile("/beta.txt", isDirectory = false),

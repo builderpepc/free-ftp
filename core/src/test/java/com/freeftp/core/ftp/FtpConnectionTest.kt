@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 
-/** Test plan section 2 (FTP), plus 5.14, 6b.6 and section 10 error mapping. */
+/** FTP connection, authentication, listing fallbacks and error mapping. */
 class FtpConnectionTest {
 
     @TempDir
@@ -67,7 +67,7 @@ class FtpConnectionTest {
         connectTimeoutMillis = connectTimeoutMillis,
     )
 
-    @Test // 2.1
+    @Test
     fun `valid credentials connect`() {
         val ftp = FtpRemoteClient(profile(start().port))
         ftp.use {
@@ -77,7 +77,7 @@ class FtpConnectionTest {
         }
     }
 
-    @Test // 2.2
+    @Test
     fun `a wrong password reports an authentication failure not an IO error`() {
         val port = start().port
         val client = FtpRemoteClient(
@@ -88,7 +88,7 @@ class FtpConnectionTest {
         assertFalse(client.isConnected)
     }
 
-    @Test // 2.3, 10.2
+    @Test
     @Timeout(30)
     fun `connecting to a closed port fails fast and names the endpoint`() {
         val port = freePort() // nothing is listening here
@@ -96,7 +96,7 @@ class FtpConnectionTest {
         assertTrue(failure.message!!.contains("127.0.0.1:$port"), failure.message)
     }
 
-    @Test // 2.4
+    @Test
     fun `anonymous login works where the server allows it`() {
         val ftp = FtpRemoteClient(profile(start().port, Credentials.Anonymous))
         ftp.use {
@@ -105,7 +105,7 @@ class FtpConnectionTest {
         }
     }
 
-    @Test // 2.5
+    @Test
     fun `passive mode lists and transfers`() {
         val bytes = randomBytes(128 * 1024, seed = 31)
         root.resolve("passive.bin").writeBytes(bytes)
@@ -118,7 +118,7 @@ class FtpConnectionTest {
         }
     }
 
-    @Test // 2.6
+    @Test
     fun `active mode lists and transfers`() {
         val bytes = randomBytes(128 * 1024, seed = 37)
         root.resolve("active.bin").writeBytes(bytes)
@@ -133,7 +133,7 @@ class FtpConnectionTest {
         }
     }
 
-    @Test // 2.15
+    @Test
     @Timeout(60)
     fun `the connect timeout is honoured for an unreachable host`() {
         // 198.51.100.0/24 is TEST-NET-2: reserved for documentation, never routed.
@@ -146,7 +146,7 @@ class FtpConnectionTest {
         assertTrue(elapsedMillis < 30_000, "connect took ${elapsedMillis}ms despite a 1.5s timeout")
     }
 
-    @Test // 2.20
+    @Test
     fun `UTF-8 is negotiated for the control channel`() {
         val client = FtpRemoteClient(profile(start().port))
         client.use {
@@ -155,7 +155,7 @@ class FtpConnectionTest {
         }
     }
 
-    @Test // 5.14, 5.15
+    @Test
     fun `a server without MLSD falls back to LIST and still parses`() {
         root.resolve("sub").createDirectories()
         root.resolve("plain.txt").writeBytes("12345".toByteArray())
@@ -177,7 +177,7 @@ class FtpConnectionTest {
         }
     }
 
-    @Test // 6b.6
+    @Test
     fun `a server without SITE CHMOD reports the feature as unsupported`() {
         root.resolve("perms.txt").writeBytes("x".toByteArray())
         FtpRemoteClient(profile(start().port)).use {
@@ -187,7 +187,7 @@ class FtpConnectionTest {
         }
     }
 
-    @Test // 10.1
+    @Test
     fun `an unknown host is reported as such`() {
         val client = FtpRemoteClient(
             profile(port = 21, host = "no-such-host.invalid", connectTimeoutMillis = 5_000)
@@ -196,7 +196,7 @@ class FtpConnectionTest {
         assertTrue(failure.message!!.contains("no-such-host.invalid"), failure.message)
     }
 
-    @Test // 10.3
+    @Test
     fun `a write into a directory the account may not modify is a permission error`() {
         root.resolve("readonly.txt").writeBytes("x".toByteArray())
         val client = FtpRemoteClient(
@@ -212,7 +212,7 @@ class FtpConnectionTest {
         }
     }
 
-    @Test // 10.6
+    @Test
     fun `distinct failures map to distinct exception types`() {
         root.resolve("file.txt").writeBytes("x".toByteArray())
         FtpRemoteClient(profile(start().port)).use {

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 
-/** Test plan section 3 — SSH host key verification. */
+/** SSH host key verification: trust on first use, and refusal when a key changes. */
 class HostKeyVerificationTest {
 
     @TempDir
@@ -67,7 +67,7 @@ class HostKeyVerificationTest {
         hostKeyPolicy = policy,
     )
 
-    @Test // 3.1
+    @Test
     fun `the first connection remembers the key it was shown`() {
         val store = InMemoryHostKeyStore()
         val sftp = start()
@@ -75,7 +75,7 @@ class HostKeyVerificationTest {
         assertEquals(sftp.hostKeyFingerprint(), store.fingerprintFor("127.0.0.1", sftp.port))
     }
 
-    @Test // 3.2
+    @Test
     fun `reconnecting with the same key succeeds silently`() {
         val store = InMemoryHostKeyStore()
         val sftp = start()
@@ -86,7 +86,7 @@ class HostKeyVerificationTest {
         }
     }
 
-    @Test // 3.3
+    @Test
     fun `a changed host key is refused and names both fingerprints`() {
         val store = InMemoryHostKeyStore()
         val first = start("hostkey-a.ser")
@@ -104,7 +104,7 @@ class HostKeyVerificationTest {
         assertEquals(second.hostKeyFingerprint(), failure.actualFingerprint)
     }
 
-    @Test // 3.4
+    @Test
     fun `strict mode refuses a host it has never seen`() {
         val store = InMemoryHostKeyStore()
         val sftp = start()
@@ -115,7 +115,7 @@ class HostKeyVerificationTest {
         assertNull(store.fingerprintFor("127.0.0.1", sftp.port), "a refused key must not be stored")
     }
 
-    @Test // 3.5
+    @Test
     fun `fingerprints match what ssh-keygen prints`() {
         assumeTrue(SshKeyFixtures.isAvailable())
         val key = SshKeyFixtures.generate(workspace, "ed25519")
@@ -135,7 +135,7 @@ class HostKeyVerificationTest {
         assertTrue(output.contains(ours), "ssh-keygen said: ${output.trim()}; we said: $ours")
     }
 
-    @Test // 3.6
+    @Test
     fun `the store distinguishes the same host on different ports`() {
         val store = InMemoryHostKeyStore()
         store.remember("example.com", 22, "SHA256:aaa")
@@ -149,7 +149,7 @@ class HostKeyVerificationTest {
         assertEquals("SHA256:bbb", store.fingerprintFor("example.com", 2222))
     }
 
-    @Test // 3.6
+    @Test
     fun `a file backed store survives a restart`() {
         val file = workspace.resolve("hostkeys/known.txt").toFile()
         FileHostKeyStore(file).remember("example.com", 2222, "SHA256:persisted")

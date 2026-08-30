@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
-/** Test plan section 9 — connection profile persistence. */
+/** Connection profile persistence, and the encryption of the secrets inside it. */
 class ServerProfileRepositoryTest {
 
     @TempDir
@@ -53,14 +53,14 @@ class ServerProfileRepositoryTest {
         dataTimeoutMillis = 11_000,
     )
 
-    @Test // 9.1
+    @Test
     fun `every field round trips`() {
         val original = profile()
         repository.save(original)
         assertEquals(listOf(original), repository.load())
     }
 
-    @Test // 9.1
+    @Test
     fun `private key credentials round trip including newlines`() {
         val key = buildString {
             appendLine("-----BEGIN OPENSSH PRIVATE KEY-----")
@@ -75,21 +75,21 @@ class ServerProfileRepositoryTest {
         assertEquals(original, repository.load().single())
     }
 
-    @Test // 9.1
+    @Test
     fun `anonymous credentials round trip`() {
         val original = profile(credentials = Credentials.Anonymous)
         repository.save(original)
         assertEquals(Credentials.Anonymous, repository.load().single().credentials)
     }
 
-    @Test // 9.2
+    @Test
     fun `saving an existing id updates rather than duplicating`() {
         repository.save(profile())
         repository.save(profile().copy(name = "Renamed"))
         assertEquals(listOf("Renamed"), repository.load().map { it.name })
     }
 
-    @Test // 9.3
+    @Test
     fun `delete removes only the named profile`() {
         repository.save(profile(id = "one"))
         repository.save(profile(id = "two"))
@@ -98,7 +98,7 @@ class ServerProfileRepositoryTest {
         assertNull(repository.find("one"))
     }
 
-    @Test // 9.4
+    @Test
     fun `secrets never reach the disk in clear`() {
         val keyMaterial = "secret-key-material"
         val key = "-----BEGIN OPENSSH PRIVATE KEY-----" + System.lineSeparator() + keyMaterial
@@ -118,7 +118,7 @@ class ServerProfileRepositoryTest {
         assertEquals(password, (repository.find("pw")!!.credentials as Credentials.Password).password)
     }
 
-    @Test // 9.4
+    @Test
     fun `the same secret encrypts differently every time`() {
         repository.save(profile(id = "a"))
         val first = store.readText()
@@ -126,14 +126,14 @@ class ServerProfileRepositoryTest {
         assertNotEquals(first, store.readText(), "a fixed nonce would leak that the value is unchanged")
     }
 
-    @Test // 9.5
+    @Test
     fun `a corrupt store loads as empty rather than crashing`() {
         store.parentFile.mkdirs()
         store.writeText("this is not a profile store" + System.lineSeparator() + "  garbage")
         assertEquals(emptyList<ServerProfile>(), repository.load())
     }
 
-    @Test // 9.5
+    @Test
     fun `a store whose secrets cannot be decrypted loads as empty rather than crashing`() {
         repository.save(profile(id = "good"))
         // Re-open with a different key, as if the device key store had been reset.
@@ -141,7 +141,7 @@ class ServerProfileRepositoryTest {
         assertEquals(emptyList<ServerProfile>(), stranger.load())
     }
 
-    @Test // 9.5
+    @Test
     fun `a missing store is simply empty`() {
         assertEquals(emptyList<ServerProfile>(), repository.load())
         assertTrue(!store.exists())

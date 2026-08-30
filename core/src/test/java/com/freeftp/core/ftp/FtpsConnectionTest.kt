@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 
-/** Test plan section 4 — FTPS, explicit and implicit, against a real TLS-enabled server. */
+/** FTPS, explicit and implicit, against a real TLS-enabled server. */
 class FtpsConnectionTest {
 
     @TempDir
@@ -76,7 +76,7 @@ class FtpsConnectionTest {
         assertEquals(sha256(bytes), sha256(root.resolve("uploaded.bin").readBytes()))
     }
 
-    @Test // 4.1, 4.5
+    @Test
     @Timeout(60)
     fun `explicit FTPS connects lists and transfers over a protected data channel`() {
         val port = start(EmbeddedFtpServer.TlsMode.EXPLICIT).port
@@ -87,7 +87,7 @@ class FtpsConnectionTest {
         }
     }
 
-    @Test // 4.2, 4.5
+    @Test
     @Timeout(60)
     fun `implicit FTPS connects lists and transfers`() {
         val port = start(EmbeddedFtpServer.TlsMode.IMPLICIT).port
@@ -98,7 +98,7 @@ class FtpsConnectionTest {
         }
     }
 
-    @Test // 4.3
+    @Test
     @Timeout(60)
     fun `an untrusted certificate is refused when verification is on`() {
         val port = start(EmbeddedFtpServer.TlsMode.EXPLICIT).port
@@ -112,7 +112,7 @@ class FtpsConnectionTest {
         )
     }
 
-    @Test // 4.4
+    @Test
     @Timeout(60)
     fun `the same certificate is accepted once the user trusts it`() {
         val port = start(EmbeddedFtpServer.TlsMode.EXPLICIT).port
@@ -122,7 +122,7 @@ class FtpsConnectionTest {
         }
     }
 
-    @Test // 4.6
+    @Test
     @Timeout(90)
     fun `a plain FTP client against a TLS-only listener fails cleanly`() {
         val port = start(EmbeddedFtpServer.TlsMode.IMPLICIT).port

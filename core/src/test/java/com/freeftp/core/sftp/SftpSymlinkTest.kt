@@ -16,7 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
-/** Test plan 5.12, 6b.7 and 6b.8 — symbolic links, which only SFTP can express. */
+/** Symbolic links, which only SFTP can express. */
 class SftpSymlinkTest {
 
     @TempDir
@@ -49,7 +49,7 @@ class SftpSymlinkTest {
         server.close()
     }
 
-    @Test // 6b.7, 5.12
+    @Test
     fun `a symlink to a file is flagged and resolvable`() {
         root.resolve("target.txt").writeText("linked content")
         client.symlink("/link.txt", "target.txt")
@@ -61,7 +61,7 @@ class SftpSymlinkTest {
         assertEquals("target.txt", client.readlink("/link.txt"))
     }
 
-    @Test // 6b.8
+    @Test
     fun `reading through a symlink returns the target content`() {
         root.resolve("target.txt").writeText("linked content")
         client.symlink("/link.txt", "target.txt")
@@ -71,7 +71,7 @@ class SftpSymlinkTest {
         assertEquals("linked content", String(sink.bytes))
     }
 
-    @Test // 5.12
+    @Test
     fun `a symlink to a directory is browsable as a directory`() {
         root.resolve("real").createDirectories()
         root.resolve("real/inside.txt").writeText("x")

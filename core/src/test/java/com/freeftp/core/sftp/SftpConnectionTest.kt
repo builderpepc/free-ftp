@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 
-/** Test plan section 2 for SFTP: connection and every authentication method. */
+/** SFTP connection and every authentication method the client offers. */
 class SftpConnectionTest {
 
     @TempDir
@@ -75,7 +75,7 @@ class SftpConnectionTest {
     private fun keyPair(type: String, passphrase: String? = null) =
         SshKeyFixtures.generate(workspace, type, passphrase)
 
-    @Test // 2.9
+    @Test
     fun `password authentication connects`() {
         client(start().port).use {
             it.connect()
@@ -84,7 +84,7 @@ class SftpConnectionTest {
         }
     }
 
-    @Test // 2.10
+    @Test
     fun `a wrong password is an authentication failure`() {
         val port = start().port
         val client = client(port, Credentials.Password(EmbeddedSftpServer.USER, "wrong-password"))
@@ -92,7 +92,7 @@ class SftpConnectionTest {
         assertFalse(failure.message!!.contains("wrong-password"))
     }
 
-    @Test // 2.11
+    @Test
     fun `ed25519 public key authentication connects`() {
         assumeTrue(SshKeyFixtures.isAvailable(), "ssh-keygen is required to generate test keys")
         val key = keyPair("ed25519")
@@ -106,7 +106,7 @@ class SftpConnectionTest {
         }
     }
 
-    @Test // 2.12
+    @Test
     fun `RSA public key authentication connects`() {
         assumeTrue(SshKeyFixtures.isAvailable())
         val key = keyPair("rsa")
@@ -117,7 +117,7 @@ class SftpConnectionTest {
         }
     }
 
-    @Test // 2.13
+    @Test
     fun `an encrypted private key opens with the right passphrase`() {
         assumeTrue(SshKeyFixtures.isAvailable())
         val key = keyPair("ed25519", passphrase = "correct horse battery staple")
@@ -131,7 +131,7 @@ class SftpConnectionTest {
         }
     }
 
-    @Test // 2.14
+    @Test
     fun `an encrypted private key with the wrong passphrase fails authentication`() {
         assumeTrue(SshKeyFixtures.isAvailable())
         val key = keyPair("ed25519", passphrase = "correct horse battery staple")
@@ -144,7 +144,7 @@ class SftpConnectionTest {
         assertFalse(failure.message!!.contains("not the passphrase"))
     }
 
-    @Test // 2.17
+    @Test
     fun `keyboard-interactive authentication connects when password auth is unavailable`() {
         val port = start(keyboardInteractiveEnabled = true, passwordEnabled = false).port
         client(port).use {
@@ -153,7 +153,7 @@ class SftpConnectionTest {
         }
     }
 
-    @Test // 2.19
+    @Test
     fun `a rejected key falls back to the password`() {
         assumeTrue(SshKeyFixtures.isAvailable())
         val offered = keyPair("ed25519")
@@ -172,7 +172,7 @@ class SftpConnectionTest {
         }
     }
 
-    @Test // 2.3, 10.2
+    @Test
     @Timeout(30)
     fun `connecting to a closed port fails fast and names the endpoint`() {
         val port = freePort()
@@ -180,7 +180,7 @@ class SftpConnectionTest {
         assertTrue(failure.message!!.contains("127.0.0.1:$port"), failure.message)
     }
 
-    @Test // 10.1
+    @Test
     fun `an unknown host is reported as such`() {
         val failure = assertThrows<TransportException> {
             client(port = 22, host = "no-such-host.invalid", connectTimeoutMillis = 5_000).connect()

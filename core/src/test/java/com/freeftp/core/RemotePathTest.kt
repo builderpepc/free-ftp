@@ -5,16 +5,16 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-/** Test plan section 1 — remote path handling. */
+/** Remote path arithmetic: the arithmetic every "works on my server" bug hides in. */
 class RemotePathTest {
 
-    @Test // 1.1
+    @Test
     fun `normalize collapses duplicate and trailing separators`() {
         assertEquals("/a/b", RemotePath.normalize("/a//b/"))
         assertEquals("/a/b", RemotePath.normalize("///a///b///"))
     }
 
-    @Test // 1.2
+    @Test
     fun `normalize of empty and dot is the root`() {
         assertEquals("/", RemotePath.normalize(""))
         assertEquals("/", RemotePath.normalize("."))
@@ -22,7 +22,7 @@ class RemotePathTest {
         assertEquals("/", RemotePath.normalize("/./"))
     }
 
-    @Test // 1.3
+    @Test
     fun `dot dot never escapes the root`() {
         assertEquals("/", RemotePath.normalize("/.."))
         assertEquals("/", RemotePath.normalize("/../../.."))
@@ -30,7 +30,7 @@ class RemotePathTest {
         assertEquals("/a/c", RemotePath.normalize("/a/b/../c"))
     }
 
-    @Test // 1.4, 1.5
+    @Test
     fun `parent walks one level and stops at the root`() {
         assertEquals("/a", RemotePath.parent("/a/b.txt"))
         assertEquals("/a/b", RemotePath.parent("/a/b/c"))
@@ -39,7 +39,7 @@ class RemotePathTest {
         assertEquals("/", RemotePath.parent(""))
     }
 
-    @Test // 1.6
+    @Test
     fun `name returns the last segment`() {
         assertEquals("b.txt", RemotePath.name("/a/b.txt"))
         assertEquals("b", RemotePath.name("/a/b/"))
@@ -47,21 +47,21 @@ class RemotePathTest {
         assertEquals("", RemotePath.name(""))
     }
 
-    @Test // 1.7
+    @Test
     fun `join does not escape or alter the child name`() {
         assertEquals("/a/b c.txt", RemotePath.join("/a", "b c.txt"))
         assertEquals("/a/b&c#d.txt", RemotePath.join("/a", "b&c#d.txt"))
         assertEquals("/b c.txt", RemotePath.join("/", "b c.txt"))
     }
 
-    @Test // 1.8
+    @Test
     fun `join treats the child as relative even with a leading separator`() {
         assertEquals("/a/b", RemotePath.join("/a/", "/b"))
         assertEquals("/a/b", RemotePath.join("/a", "b"))
         assertEquals("/a", RemotePath.join("/a", ""))
     }
 
-    @Test // 1.9
+    @Test
     fun `segments containing dots are not treated as parent references`() {
         assertEquals("/a/..b", RemotePath.normalize("/a/..b"))
         assertEquals("/a/...", RemotePath.normalize("/a/..."))
@@ -69,7 +69,7 @@ class RemotePathTest {
         assertEquals("/a/.hidden", RemotePath.normalize("/a/.hidden"))
     }
 
-    @Test // 1.10
+    @Test
     fun `unicode and emoji segments survive intact`() {
         val path = "/データ/файл/naïve/🚀 rocket.txt"
         assertEquals(path, RemotePath.normalize(path))
@@ -77,7 +77,7 @@ class RemotePathTest {
         assertEquals("/データ/файл/naïve", RemotePath.parent(path))
     }
 
-    @Test // 1.11
+    @Test
     fun `isAncestorOf requires a separator boundary`() {
         assertTrue(RemotePath.isAncestorOf("/a", "/a/b"))
         assertTrue(RemotePath.isAncestorOf("/", "/a"))
@@ -86,28 +86,28 @@ class RemotePathTest {
         assertFalse(RemotePath.isAncestorOf("/a/b", "/a"))
     }
 
-    @Test // 1.12
+    @Test
     fun `relativize strips the ancestor prefix`() {
         assertEquals("c/d", RemotePath.relativize("/a/b", "/a/b/c/d"))
         assertEquals("a", RemotePath.relativize("/", "/a"))
         assertEquals("", RemotePath.relativize("/a", "/a"))
     }
 
-    @Test // 1.13
+    @Test
     fun `backslash is an ordinary filename character`() {
         assertEquals("b\\c", RemotePath.name("/a/b\\c"))
         assertEquals("/a/b\\c", RemotePath.normalize("/a/b\\c"))
         assertEquals(listOf("a", "b\\c"), RemotePath.segments("/a/b\\c"))
     }
 
-    @Test // 1.14
+    @Test
     fun `segments splits on separators only`() {
         assertEquals(listOf("a", "b"), RemotePath.segments("/a/b"))
         assertEquals(emptyList<String>(), RemotePath.segments("/"))
         assertEquals(listOf("a"), RemotePath.segments("a"))
     }
 
-    @Test // 1.15
+    @Test
     fun `very long paths are not truncated`() {
         val deep = (1..256).joinToString(separator = "/", prefix = "/") { "segment$it" }
         assertEquals(deep, RemotePath.normalize(deep))

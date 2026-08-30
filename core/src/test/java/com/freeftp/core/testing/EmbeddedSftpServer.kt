@@ -21,7 +21,7 @@ import org.apache.sshd.sftp.server.SftpSubsystemFactory
  * A real Apache MINA SSHD instance exposing the SFTP subsystem over a temporary directory.
  *
  * [hostKeyFile] is explicit so a test can restart the server with a different key and
- * exercise the "host key changed" path (test plan 3.3).
+ * exercise the "host key changed" path.
  */
 class EmbeddedSftpServer(
     val root: Path,

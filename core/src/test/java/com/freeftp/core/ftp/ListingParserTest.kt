@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 /**
- * Test plan section 5b — LIST dialect parsing.
+ * LIST dialect parsing.
  *
  * Modelled on Cyberduck's `ftp/parser` package: raw lines as real servers emit them,
  * parsed with no server in the loop.
@@ -23,7 +23,7 @@ class ListingParserTest {
     private fun utc(millis: Long?): ZonedDateTime? =
         millis?.let { Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC) }
 
-    @Test // 5b.1
+    @Test
     fun `vsftpd unix listing`() {
         val files = ListingParser.parseListing(
             "/pub",
@@ -45,7 +45,7 @@ class ListingParserTest {
         assertEquals("1000", file.group)
     }
 
-    @Test // 5b.2
+    @Test
     fun `proftpd total header line is discarded`() {
         val files = ListingParser.parseListing(
             "/",
@@ -57,7 +57,7 @@ class ListingParserTest {
         assertEquals(listOf("a.txt"), files.map { it.name })
     }
 
-    @Test // 5b.3
+    @Test
     fun `unix filename containing spaces is not truncated`() {
         val files = ListingParser.parseListing(
             "/",
@@ -66,7 +66,7 @@ class ListingParserTest {
         assertEquals("my holiday photos.tar.gz", files.single().name)
     }
 
-    @Test // 5b.4
+    @Test
     fun `unix symlink exposes its target`() {
         val files = ListingParser.parseListing(
             "/",
@@ -78,7 +78,7 @@ class ListingParserTest {
         assertEquals("release", link.symlinkTarget)
     }
 
-    @Test // 5b.5
+    @Test
     fun `recent date without a year is never resolved into the future`() {
         val files = ListingParser.parseListing(
             "/",
@@ -96,7 +96,7 @@ class ListingParserTest {
         )
     }
 
-    @Test // 5b.6
+    @Test
     fun `old date with an explicit year parses at midnight`() {
         val files = ListingParser.parseListing(
             "/",
@@ -109,7 +109,7 @@ class ListingParserTest {
         assertEquals(0, when0.hour)
     }
 
-    @Test // 5b.7
+    @Test
     fun `unix listing without a group column still parses`() {
         val files = ListingParser.parseListing(
             "/",
@@ -119,7 +119,7 @@ class ListingParserTest {
         assertEquals(123L, files.single().size)
     }
 
-    @Test // 5b.8, 5b.9
+    @Test
     fun `windows IIS MS-DOS listing`() {
         val files = ListingParser.parseListing(
             "/wwwroot",
@@ -140,7 +140,7 @@ class ListingParserTest {
         assertEquals(14, when0.dayOfMonth)
     }
 
-    @Test // 5b.10
+    @Test
     fun `netware listing`() {
         val files = ListingParser.parseListing(
             "/",
@@ -156,7 +156,7 @@ class ListingParserTest {
         assertEquals(1234L, files[1].size)
     }
 
-    @Test // 5b.11
+    @Test
     fun `EPLF listing`() {
         val files = ListingParser.parseEplf(
             "/pub",
@@ -174,7 +174,7 @@ class ListingParserTest {
         assertEquals("archive", files[1].name)
     }
 
-    @Test // 5b.12, 5b.13
+    @Test
     fun `MLSD facts drive type size and timestamp`() {
         val files = ListingParser.parseMlsd(
             "/pub",
@@ -196,7 +196,7 @@ class ListingParserTest {
         assertEquals(12, when0.minute)
     }
 
-    @Test // 5b.14
+    @Test
     fun `MLSD cdir and pdir entries are filtered out`() {
         val files = ListingParser.parseMlsd(
             "/pub",
@@ -209,7 +209,7 @@ class ListingParserTest {
         assertEquals(listOf("a.txt"), files.map { it.name })
     }
 
-    @Test // 5b.15
+    @Test
     fun `unicode names survive the unix parser`() {
         val files = ListingParser.parseListing(
             "/",
@@ -221,7 +221,7 @@ class ListingParserTest {
         assertEquals(listOf("привет мир.txt", "日本語フォルダ"), files.map { it.name })
     }
 
-    @Test // 5b.16, 5.8
+    @Test
     fun `garbage lines and dot entries are skipped without aborting the listing`() {
         val files = ListingParser.parseListing(
             "/",
@@ -236,7 +236,7 @@ class ListingParserTest {
         assertEquals(listOf("good.txt"), files.map { it.name })
     }
 
-    @Test // 5.7
+    @Test
     fun `hidden dotfiles are kept`() {
         val files = ListingParser.parseListing(
             "/home/bob",

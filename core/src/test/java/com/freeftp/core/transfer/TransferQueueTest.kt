@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.io.TempDir
 
 /**
- * Test plan section 8 — the transfer queue, exercised over a real SFTP server so the
+ * The transfer queue, exercised over a real SFTP server so the
  * queue's behaviour is measured against real I/O rather than a stub.
  */
 class TransferQueueTest {
@@ -97,7 +97,7 @@ class TransferQueueTest {
         withTimeout(timeoutMillis) { manager.awaitIdle() }
     }
 
-    @Test // 8.1
+    @Test
     @Timeout(180)
     fun `three transfers run to completion in order`() {
         val payloads = (1..3).map { randomBytes(128 * 1024, seed = it) }
@@ -113,7 +113,7 @@ class TransferQueueTest {
         }
     }
 
-    @Test // 8.2
+    @Test
     @Timeout(120)
     fun `a transfer passes through queued then running then completed exactly once`() {
         seedRemote("states.bin", randomBytes(64 * 1024))
@@ -141,7 +141,7 @@ class TransferQueueTest {
         )
     }
 
-    @Test // 8.3
+    @Test
     @Timeout(180)
     fun `a failing transfer is recorded and the queue keeps going`() {
         seedRemote("good.bin", randomBytes(32 * 1024))
@@ -160,7 +160,7 @@ class TransferQueueTest {
         assertEquals(TransferState.COMPLETED, statuses.getValue("good").state)
     }
 
-    @Test // 8.4
+    @Test
     @Timeout(180)
     fun `cancelling a queued item stops it from ever starting`() {
         seedRemote("first.bin", randomBytes(4 * 1024 * 1024, seed = 3))
@@ -176,7 +176,7 @@ class TransferQueueTest {
         assertTrue(!File(localDir, "second.bin").exists(), "a cancelled item must not be written")
     }
 
-    @Test // 8.5
+    @Test
     @Timeout(180)
     fun `cancelling the running item lets the next one start`() {
         seedRemote("huge.bin", randomBytes(16 * 1024 * 1024, seed = 5))
@@ -199,7 +199,7 @@ class TransferQueueTest {
         assertEquals(TransferState.COMPLETED, statuses.getValue("next").state)
     }
 
-    @Test // 8.6
+    @Test
     @Timeout(180)
     fun `aggregate progress adds up across the queue`() {
         val sizes = listOf(64 * 1024, 128 * 1024, 32 * 1024)
@@ -212,7 +212,7 @@ class TransferQueueTest {
         assertEquals(sizes.sum().toLong(), total)
     }
 
-    @Test // 8.7
+    @Test
     @Timeout(180)
     fun `a failed transfer can be retried once the cause is gone`() {
         manager.enqueue(download("late", "late.bin"))
@@ -228,7 +228,7 @@ class TransferQueueTest {
         assertEquals(sha256(bytes), sha256(File(localDir, "late.bin").readBytes()))
     }
 
-    @Test // 8.8
+    @Test
     @Timeout(180)
     fun `clearCompleted removes only the finished items`() {
         seedRemote("done.bin", randomBytes(16 * 1024))
@@ -241,7 +241,7 @@ class TransferQueueTest {
 
     // ------------------------------------------------------------------ 14. pause/resume
 
-    @Test // 14.1, 14.2, 14.9
+    @Test
     @Timeout(240)
     fun `pausing keeps the partial file and resuming finishes it correctly`() {
         val bytes = randomBytes(12 * 1024 * 1024, seed = 31)
@@ -278,7 +278,7 @@ class TransferQueueTest {
         )
     }
 
-    @Test // 14.3, 14.4
+    @Test
     @Timeout(240)
     fun `a paused queue holds everything and resuming releases it in order`() {
         (0..2).forEach { seedRemote("q-$it.bin", randomBytes(64 * 1024, seed = it)) }
@@ -300,7 +300,7 @@ class TransferQueueTest {
         assertTrue(statuses.all { it.state == TransferState.COMPLETED }, statuses.toString())
     }
 
-    @Test // 14.5, 14.6
+    @Test
     @Timeout(120)
     fun `pausing with nothing running and resuming when not paused are both harmless`() {
         manager.pause()
@@ -315,7 +315,7 @@ class TransferQueueTest {
         assertEquals(listOf(TransferState.COMPLETED), manager.transfers.value.map { it.state })
     }
 
-    @Test // 14.7
+    @Test
     @Timeout(120)
     fun `an item cancelled while paused stays cancelled after resuming`() {
         seedRemote("keep.bin", randomBytes(32 * 1024, seed = 43))
@@ -332,7 +332,7 @@ class TransferQueueTest {
         assertTrue(!File(localDir, "drop.bin").exists(), "a cancelled item must not be written")
     }
 
-    @Test // 14.8
+    @Test
     @Timeout(240)
     fun `an upload survives a pause and resume intact`() {
         val bytes = randomBytes(8 * 1024 * 1024, seed = 53)
@@ -357,7 +357,7 @@ class TransferQueueTest {
         assertEquals(sha256(bytes), sha256(serverRoot.resolve("resumed-upload.bin").readBytes()))
     }
 
-    @Test // 8.1 in the upload direction
+    @Test  // in the upload direction
     @Timeout(180)
     fun `uploads queue and complete just like downloads`() {
         val bytes = randomBytes(256 * 1024, seed = 21)

@@ -35,7 +35,7 @@ import org.junit.jupiter.api.io.TempDir
  * FTP and SFTP differ enormously underneath, and the whole point of [RemoteClient] is
  * that the rest of the app cannot tell. Rather than duplicating fifty near-identical
  * tests per protocol, the contract lives here once and each protocol supplies a server
- * and a client (test plan sections 5, 6, 6b, 7).
+ * and a client.
  */
 abstract class RemoteClientContractTest {
 
@@ -103,13 +103,13 @@ abstract class RemoteClientContractTest {
 
     // ------------------------------------------------------------------ 5. listing
 
-    @Test // 5.1
+    @Test
     fun `listing an empty directory yields an empty list`() {
         seedDir("empty")
         assertEquals(emptyList<RemoteFile>(), client.list("/empty"))
     }
 
-    @Test // 5.2, 5.3, 5.8
+    @Test
     fun `listing reports type and size and omits dot entries`() {
         seedDir("mixed/subdir")
         seedFile("mixed/file.bin", randomBytes(1234))
@@ -121,7 +121,7 @@ abstract class RemoteClientContractTest {
         assertEquals("/mixed/file.bin", entries[1].path)
     }
 
-    @Test // 5.4
+    @Test
     fun `listing reports a plausible modification time`() {
         seedFile("stamped.txt")
         val entry = client.list("/").single { it.name == "stamped.txt" }
@@ -131,21 +131,21 @@ abstract class RemoteClientContractTest {
         assertTrue(skew < 5 * 60_000, "timestamp was $skew ms away from now")
     }
 
-    @Test // 5.5
+    @Test
     fun `names with punctuation round trip`() {
         val names = listOf("a b.txt", "a&b.txt", "a#b.txt", "a'b.txt", "a+b.txt", "a%b.txt", "a(1).txt")
         names.forEach { seedFile("punct/$it") }
         assertEquals(names.sorted(), client.list("/punct").map { it.name }.sorted())
     }
 
-    @Test // 5.6
+    @Test
     fun `non-ASCII names round trip`() {
         val names = listOf("привет.txt", "日本語.txt", "naïve.txt", "emoji 🚀.txt")
         names.forEach { seedFile("intl/$it") }
         assertEquals(names.sorted(), client.list("/intl").map { it.name }.sorted())
     }
 
-    @Test // 5.7
+    @Test
     fun `hidden dotfiles are listed`() {
         org.junit.jupiter.api.Assumptions.assumeTrue(listsHiddenFiles)
         seedFile("hidden/.config")
@@ -153,18 +153,18 @@ abstract class RemoteClientContractTest {
         assertEquals(listOf(".config", "visible.txt"), client.list("/hidden").map { it.name }.sorted())
     }
 
-    @Test // 5.9
+    @Test
     fun `listing a missing directory reports not found`() {
         assertThrows<RemoteFileNotFoundException> { client.list("/does/not/exist") }
     }
 
-    @Test // 5.10
+    @Test
     fun `listing a file reports that it is not a directory`() {
         seedFile("plain.txt")
         assertThrows<NotADirectoryException> { client.list("/plain.txt") }
     }
 
-    @Test // 5.11
+    @Test
     @Timeout(120)
     fun `a large directory is returned in full`() {
         seedDir("many")
@@ -172,7 +172,7 @@ abstract class RemoteClientContractTest {
         assertEquals(500, client.list("/many").size)
     }
 
-    @Test // 5.13
+    @Test
     fun `listings are sorted directories first then case-insensitively`() {
         seedDir("sorted/Zeta")
         seedDir("sorted/alpha")
@@ -186,52 +186,52 @@ abstract class RemoteClientContractTest {
 
     // ------------------------------------------------------------------ 6. file operations
 
-    @Test // 6.1
+    @Test
     fun `makeDirectory creates a directory`() {
         client.makeDirectory("/fresh")
         assertTrue(Files.isDirectory(serverRoot.resolve("fresh")))
         assertTrue(client.list("/").any { it.name == "fresh" && it.isDirectory })
     }
 
-    @Test // 6.2
+    @Test
     fun `makeDirectories creates the whole chain`() {
         client.makeDirectories("/a/b/c")
         assertTrue(Files.isDirectory(serverRoot.resolve("a/b/c")))
     }
 
-    @Test // 6.3
+    @Test
     fun `makeDirectory over an existing name fails`() {
         seedDir("taken")
         assertThrows<RemoteFileAlreadyExistsException> { client.makeDirectory("/taken") }
     }
 
-    @Test // 6.4
+    @Test
     fun `deleteFile removes the file`() {
         seedFile("doomed.txt")
         client.deleteFile("/doomed.txt")
         assertFalse(Files.exists(serverRoot.resolve("doomed.txt")))
     }
 
-    @Test // 6.5
+    @Test
     fun `deleting a missing file reports not found`() {
         assertThrows<RemoteFileNotFoundException> { client.deleteFile("/ghost.txt") }
     }
 
-    @Test // 6.6
+    @Test
     fun `removeDirectory removes an empty directory`() {
         seedDir("gone")
         client.removeDirectory("/gone")
         assertFalse(Files.exists(serverRoot.resolve("gone")))
     }
 
-    @Test // 6.7
+    @Test
     fun `removeDirectory refuses a non-empty directory and leaves it intact`() {
         seedFile("full/child.txt")
         assertThrows<RemoteException> { client.removeDirectory("/full") }
         assertTrue(Files.exists(serverRoot.resolve("full/child.txt")))
     }
 
-    @Test // 6.8
+    @Test
     fun `deleteRecursively removes a whole tree`() {
         seedFile("tree/one/two/deep.txt")
         seedFile("tree/one/sibling.txt")
@@ -240,7 +240,7 @@ abstract class RemoteClientContractTest {
         assertFalse(Files.exists(serverRoot.resolve("tree")))
     }
 
-    @Test // 6.9
+    @Test
     fun `rename within a directory preserves content`() {
         seedFile("dir/old.txt", "payload")
         client.rename("/dir/old.txt", "/dir/new.txt")
@@ -248,7 +248,7 @@ abstract class RemoteClientContractTest {
         assertEquals("payload", String(serverRoot.resolve("dir/new.txt").readBytes()))
     }
 
-    @Test // 6.10
+    @Test
     fun `rename across directories moves the file`() {
         seedFile("from/file.txt", "payload")
         seedDir("to")
@@ -257,7 +257,7 @@ abstract class RemoteClientContractTest {
         assertEquals("payload", String(serverRoot.resolve("to/file.txt").readBytes()))
     }
 
-    @Test // 6.11
+    @Test
     fun `rename onto an existing target never silently loses both files`() {
         seedFile("a.txt", "aaa")
         seedFile("b.txt", "bbb")
@@ -270,7 +270,7 @@ abstract class RemoteClientContractTest {
         assertTrue(b == "aaa" || b == "bbb", "b.txt held unexpected content: $b")
     }
 
-    @Test // 6.12
+    @Test
     fun `exists distinguishes present from absent without throwing`() {
         seedFile("here.txt")
         seedDir("heretoo")
@@ -280,7 +280,7 @@ abstract class RemoteClientContractTest {
         assertFalse(client.exists("/no/such/dir"))
     }
 
-    @Test // 6.13
+    @Test
     fun `stat reports size and modification time`() {
         val bytes = randomBytes(4096)
         seedFile("stat.bin", bytes)
@@ -291,7 +291,7 @@ abstract class RemoteClientContractTest {
         assertNotNull(entry.modifiedEpochMillis)
     }
 
-    @Test // 6.14
+    @Test
     fun `operations work on names needing quoting`() {
         val name = "an awkward & name (v2).txt"
         upload("/$name", "payload".toByteArray())
@@ -305,14 +305,14 @@ abstract class RemoteClientContractTest {
 
     // ------------------------------------------------------------------ 6b. metadata
 
-    @Test // 6b.1
+    @Test
     fun `touch creates an empty file`() {
         client.touch("/touched.txt")
         assertTrue(client.exists("/touched.txt"))
         assertEquals(0L, client.stat("/touched.txt").size)
     }
 
-    @Test // 6b.2, 6b.3
+    @Test
     fun `setModificationTime is reflected in stat`() {
         seedFile("dated.txt")
         val target = 1_700_000_000_000L // 2023-11-14T22:13:20Z
@@ -325,7 +325,7 @@ abstract class RemoteClientContractTest {
         )
     }
 
-    @Test // 6b.5, 6b.6
+    @Test
     fun `setPermissions is reflected in the listing`() {
         org.junit.jupiter.api.Assumptions.assumeTrue(supportsPermissions)
         seedFile("perms.txt")
@@ -336,7 +336,7 @@ abstract class RemoteClientContractTest {
         assertEquals("rw-r-----", permissionsToString(mode!!))
     }
 
-    @Test // 6b.9, 6b.10
+    @Test
     fun `workingDirectory is an absolute path`() {
         val cwd = client.workingDirectory()
         assertTrue(cwd.startsWith("/"), "expected an absolute path, got $cwd")
@@ -344,21 +344,21 @@ abstract class RemoteClientContractTest {
 
     // ------------------------------------------------------------------ 7. transfers
 
-    @Test // 7.1
+    @Test
     fun `zero byte files round trip`() {
         upload("/empty.bin", ByteArray(0))
         assertEquals(0L, client.stat("/empty.bin").size)
         assertArrayEquals(ByteArray(0), download("/empty.bin"))
     }
 
-    @Test // 7.2
+    @Test
     fun `small text round trips`() {
         val bytes = "the quick brown fox\n".repeat(50).toByteArray()
         upload("/text.txt", bytes)
         assertEquals(sha256(bytes), sha256(download("/text.txt")))
     }
 
-    @Test // 7.3
+    @Test
     @Timeout(120)
     fun `five megabytes of binary round trips byte for byte`() {
         val bytes = randomBytes(5 * 1024 * 1024)
@@ -367,7 +367,7 @@ abstract class RemoteClientContractTest {
         assertEquals(sha256(bytes), sha256(download("/big.bin")))
     }
 
-    @Test // 7.4
+    @Test
     fun `CRLF byte sequences are not translated`() {
         // The classic FTP data-corruption bug: transferring in ASCII mode rewrites
         // line endings and silently destroys binary payloads.
@@ -377,7 +377,7 @@ abstract class RemoteClientContractTest {
         assertArrayEquals(bytes, download("/crlf.bin"))
     }
 
-    @Test // 7.5, 7.6
+    @Test
     @Timeout(120)
     fun `progress is monotonic reaches the total and fires repeatedly`() {
         val bytes = randomBytes(5 * 1024 * 1024, seed = 7)
@@ -392,7 +392,7 @@ abstract class RemoteClientContractTest {
         assertTrue(recorder.events.all { it.second == bytes.size.toLong() })
     }
 
-    @Test // 7.7
+    @Test
     @Timeout(60)
     fun `a download can be cancelled mid-flight`() {
         val bytes = randomBytes(8 * 1024 * 1024, seed = 11)
@@ -411,7 +411,7 @@ abstract class RemoteClientContractTest {
         assertArrayEquals(bytes.copyOf(sink.bytes.size), sink.bytes, "partial data was corrupted")
     }
 
-    @Test // 7.8
+    @Test
     @Timeout(60)
     fun `an upload can be cancelled promptly`() {
         val bytes = randomBytes(16 * 1024 * 1024, seed = 13)
@@ -430,7 +430,7 @@ abstract class RemoteClientContractTest {
         assertTrue(elapsedMillis < 20_000, "cancellation took ${elapsedMillis}ms")
     }
 
-    @Test // 7.9
+    @Test
     @Timeout(120)
     fun `a download resumes from an offset into a whole correct file`() {
         val bytes = randomBytes(2 * 1024 * 1024, seed = 17)
@@ -442,7 +442,7 @@ abstract class RemoteClientContractTest {
         assertEquals(sha256(bytes), sha256(sink.bytes))
     }
 
-    @Test // 7.10
+    @Test
     @Timeout(120)
     fun `an upload resumes from an offset into a whole correct file`() {
         val bytes = randomBytes(2 * 1024 * 1024, seed = 19)
@@ -457,7 +457,7 @@ abstract class RemoteClientContractTest {
         assertEquals(sha256(bytes), sha256(serverRoot.resolve("resume-up.bin").readBytes()))
     }
 
-    @Test // 7.11
+    @Test
     fun `resuming past the end of the file is rejected`() {
         seedFile("short.bin", randomBytes(1024))
         assertThrows<RemoteException> {
@@ -468,7 +468,7 @@ abstract class RemoteClientContractTest {
         }
     }
 
-    @Test // 7.13
+    @Test
     fun `uploading over an existing file replaces it entirely`() {
         seedFile("clobber.bin", randomBytes(50_000, seed = 23))
         val replacement = "short".toByteArray()
@@ -477,7 +477,7 @@ abstract class RemoteClientContractTest {
         assertEquals(replacement.size.toLong(), client.stat("/clobber.bin").size)
     }
 
-    @Test // 7.14
+    @Test
     fun `sequential transfers on one connection all succeed`() {
         val payloads = (1..4).map { randomBytes(64 * 1024, seed = it) }
         payloads.forEachIndexed { index, bytes -> upload("/seq-$index.bin", bytes) }
@@ -486,7 +486,7 @@ abstract class RemoteClientContractTest {
         }
     }
 
-    @Test // 7.15
+    @Test
     @Timeout(90)
     fun `losing the server mid-transfer fails cleanly and the client recovers`() {
         val bytes = randomBytes(16 * 1024 * 1024, seed = 29)
@@ -514,7 +514,7 @@ abstract class RemoteClientContractTest {
 
     // ------------------------------------------------------------------ 12. text preview
 
-    @Test // 12.13
+    @Test
     fun `a text file can be previewed without touching local storage`() {
         val content = "# config\nhost = example.com\nport = 21\n\n# note: caf\u00e9 \u65e5\u672c\u8a9e \ud83d\ude80\n"
         seedFile("notes.conf", content.toByteArray())
@@ -526,7 +526,7 @@ abstract class RemoteClientContractTest {
         assertFalse(preview.truncated)
     }
 
-    @Test // 12.14
+    @Test
     @Timeout(120)
     fun `a file larger than the limit is previewed as its opening bytes`() {
         val line = "every line is exactly forty-eight bytes long...\n"
@@ -542,7 +542,7 @@ abstract class RemoteClientContractTest {
         assertTrue(whole.startsWith(preview.content), "the preview is not a prefix of the file")
     }
 
-    @Test // 12.15
+    @Test
     @Timeout(120)
     fun `the session still works after a truncated preview`() {
         seedFile("huge.log", "x".repeat(500_000).toByteArray())
@@ -555,7 +555,7 @@ abstract class RemoteClientContractTest {
         assertEquals("still here", (client.previewText("/after.txt") as FilePreview.Text).content)
     }
 
-    @Test // 12.16
+    @Test
     @Timeout(120)
     fun `a binary file is recognised without transferring all of it`() {
         seedFile("blob.bin", randomBytes(4 * 1024 * 1024, seed = 71))
@@ -568,7 +568,7 @@ abstract class RemoteClientContractTest {
         )
     }
 
-    @Test // 12.17
+    @Test
     fun `previewing a missing file reports it as missing`() {
         assertThrows<RemoteFileNotFoundException> { client.previewText("/no-such-file.txt") }
     }
@@ -579,7 +579,7 @@ abstract class RemoteClientContractTest {
     private fun scanEverything(base: String = "/", maxFiles: Int = 5_000, maxDepth: Int = 24) =
         client.scanForDownload(base, client.list(base), maxFiles = maxFiles, maxDepth = maxDepth)
 
-    @Test // 13.1, 13.9
+    @Test
     fun `scanning a flat directory finds every file and sums their sizes`() {
         seedFile("flat/a.txt", ByteArray(100))
         seedFile("flat/b.txt", ByteArray(250))
@@ -592,7 +592,7 @@ abstract class RemoteClientContractTest {
         assertFalse(scan.truncated)
     }
 
-    @Test // 13.2
+    @Test
     fun `scanning a nested tree keeps the structure in the relative paths`() {
         seedFile("docs/top.txt", "1")
         seedFile("docs/reports/mid.txt", "2")
@@ -608,7 +608,7 @@ abstract class RemoteClientContractTest {
         assertEquals(3, scan.directoryCount)
     }
 
-    @Test // 13.3, 13.5
+    @Test
     fun `a mixed selection is relative to the directory being browsed`() {
         seedFile("loose.txt", "x")
         seedFile("bundle/inner.txt", "y")
@@ -623,7 +623,7 @@ abstract class RemoteClientContractTest {
         assertTrue(scan.files.none { it.relativePath.contains("ignored") })
     }
 
-    @Test // 13.4
+    @Test
     fun `empty directories are counted but add no files`() {
         seedDir("hollow/one")
         seedDir("hollow/two")
@@ -633,7 +633,7 @@ abstract class RemoteClientContractTest {
         assertEquals(0L, scan.totalBytes)
     }
 
-    @Test // 13.7
+    @Test
     fun `the file limit stops the walk and says so`() {
         repeat(30) { seedFile("many/file-%02d.txt".format(it), "x") }
         val scan = scanEverything("/many", maxFiles = 10)
@@ -641,7 +641,7 @@ abstract class RemoteClientContractTest {
         assertTrue(scan.truncated, "hitting the file limit must be reported")
     }
 
-    @Test // 13.8
+    @Test
     fun `the depth limit stops the walk and says so`() {
         seedFile("deep/one/two/three/four/bottom.txt", "x")
         val shallow = client.scanForDownload("/deep", client.list("/deep"), maxDepth = 2)
@@ -653,20 +653,20 @@ abstract class RemoteClientContractTest {
         assertEquals(listOf("one/two/three/four/bottom.txt"), full.files.map { it.relativePath })
     }
 
-    @Test // 13.10
+    @Test
     fun `scanning a missing directory reports it as missing`() {
         assertThrows<RemoteFileNotFoundException> {
             client.scanForDownload("/", listOf(RemoteFile("/gone", isDirectory = true)))
         }
     }
 
-    @Test // 2.16
+    @Test
     fun `operations before connecting are rejected`() {
         val fresh = createClient()
         assertThrows<NotConnectedException> { fresh.list("/") }
     }
 
-    @Test // 2.7, 2.8
+    @Test
     fun `disconnect is idempotent and the client can reconnect`() {
         val fresh = createClient()
         fresh.disconnect() // never connected
@@ -679,7 +679,7 @@ abstract class RemoteClientContractTest {
         fresh.disconnect()
     }
 
-    @Test // 10.5
+    @Test
     fun `no error message leaks the password`() {
         val failures = buildList {
             add(runCatching { client.list("/nope") }.exceptionOrNull())

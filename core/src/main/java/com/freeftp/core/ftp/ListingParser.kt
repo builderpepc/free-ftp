@@ -16,7 +16,7 @@ import org.apache.commons.net.ftp.parser.MLSxEntryParser
  * parsers for the common ones (Unix, Windows/IIS, Netware, VMS, OS/400, MVS, OS/2);
  * this object selects between them, adds `MLSD` (RFC 3659) and EPLF handling, and
  * maps everything onto one model. Kept separate from the client so every dialect can
- * be exercised without a server (test plan section 5b).
+ * be exercised without a server.
  */
 object ListingParser {
 
