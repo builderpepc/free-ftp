@@ -15,6 +15,9 @@ holds is `INTERNET`, and the only host it ever contacts is the one you typed in.
 - Standard security features found in other popular FTP clients
 - Handles passive and active mode, `MLSD` with a  `LIST` fallback, and other edge cases
 
+## Installation
+You can find the latest prebuilt APK in [Releases](https://github.com/builderpepc/free-ftp/releases), or compile it from source by following the instructions below.
+
 ## Building
 
 Requires JDK 17+ and the Android SDK with platform 37 and build-tools 36.0.0.
