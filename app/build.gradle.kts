@@ -22,11 +22,11 @@ android {
         minSdk = 26
         targetSdk = 36
         // Bump both per release and tag the commit to match (versionName "1.7" ->
-        // tag "v1.7"). Kept as literals here rather than behind a constant: F-Droid's
+        // tag "v1.8"). Kept as literals here rather than behind a constant: F-Droid's
         // update checker reads these values straight out of defaultConfig, and cannot
         // resolve a reference.
-        versionCode = 8
-        versionName = "1.7"
+        versionCode = 9
+        versionName = "1.8"
     }
 
     signingConfigs {
@@ -46,6 +46,11 @@ android {
 
     buildTypes {
         release {
+            // AGP embeds the git commit and working-tree state in
+            // META-INF/version-control-info.textproto. It differs between a developer's
+            // checkout and a fresh clone of the same commit, which is enough on its own
+            // to break a reproducible build. It buys us nothing, so leave it out.
+            vcsInfo { include = false }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
