@@ -22,11 +22,11 @@ android {
         minSdk = 26
         targetSdk = 36
         // Bump both per release and tag the commit to match (versionName "1.7" ->
-        // tag "v1.8"). Kept as literals here rather than behind a constant: F-Droid's
+        // tag "v1.9"). Kept as literals here rather than behind a constant: F-Droid's
         // update checker reads these values straight out of defaultConfig, and cannot
         // resolve a reference.
-        versionCode = 9
-        versionName = "1.8"
+        versionCode = 10
+        versionName = "1.9"
     }
 
     signingConfigs {
@@ -42,6 +42,14 @@ android {
                 enableV3Signing = true
             }
         }
+    }
+
+    // AGP attaches an encrypted list of dependencies to the APK signing block for
+    // Google Play's benefit. F-Droid's scanner rejects it as an extra signing block,
+    // and it is opaque data no user of this app has any use for.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     buildTypes {
