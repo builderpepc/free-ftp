@@ -7,4 +7,3 @@
   - If no simulated or real device is present, ask the developer to set one up.
 - You should have a deterministic test suite, but every test should be genuinely useful; consolidate where possible.
 - You should also do occasional sanity checks by manually testing the application by driving the emulator.
-- For this project, follow TDD; examine other open source FTP clients and their test suites to come up with a comprehensive set of cases and have them in writing ahead of time.
