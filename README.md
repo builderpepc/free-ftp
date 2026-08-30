@@ -6,49 +6,14 @@ The app talks to your servers and to nothing else: the only network permission i
 holds is `INTERNET`, and the only host it ever contacts is the one you typed in.
 
 ## Features
-
-- **FTP, FTPS (explicit and implicit) and SFTP** in one client.
-- Browse, download, upload, rename, delete, create folders. Back walks up the
-  remote tree and only disconnects once you are at the root.
-- **Per-server start folder** — browse to a folder and pick "Open here next time"
-  from the ⋮ menu, and that connection opens straight into it from then on.
-- **In-app text viewer.** Tap any file to read it — configs, logs, source, CSV —
-  streamed straight into memory, with nothing written to device storage. The
-  encoding is detected (BOM, then UTF-8, then a Latin-1 fallback) and shown, so
-  you can tell real content from mojibake. Files past 1 MB show their opening
-  megabyte with a banner; binaries say so instead of rendering noise.
-- **Folder downloads and multi-select.** Long-press to start a selection, tick what
-  you want, and download or delete in bulk; folders come down recursively with their
-  structure intact. "Download all in this folder" is in the ⋮ menu. Anything large —
-  more than 20 files or 100 MB, or a folder too big to finish scanning — asks first,
-  and deleting always asks.
-- **Transfer queue** with live progress, **pause and resume**, cancel and retry.
-  A paused transfer keeps its partial file and continues from that offset. Tap a
-  finished download to open it.
-- **Downloads land in `Downloads/FreeFTP`**, where the Files app can actually see
-  them, and you can point them at any folder you like from Settings. FreeFTP asks
-  for no storage permission: you grant access to the one folder you choose.
-- **SSH host key checking.** An unrecognised server is refused until you have seen
-  its `SHA256:` fingerprint and accepted it; a key that later changes is refused
-  outright.
-- **Certificate checking for FTPS**, with an explicit opt-in for self-signed certs.
-- Passwords, key passphrases and private keys are **encrypted at rest** with a key
-  held in the Android key store.
-- Password, SSH key (with passphrase) and anonymous authentication, with automatic
-  fallback across `publickey`, `password` and `keyboard-interactive`.
-- Handles the awkward parts of real FTP: passive and active mode, `MLSD` with a
-  `LIST` fallback, a dozen server listing dialects, UTF-8 negotiation, and
-  `LIST -a` when you ask to see hidden files.
-
-## Project layout
-
-| Module | What it holds |
-|---|---|
-| `core` | The protocol layer: `RemoteClient` and its FTP and SFTP implementations, listing parsers, the transfer queue, host-key and profile storage. No Android UI dependencies. |
-| `app`  | The Jetpack Compose UI: server list, connection editor, file browser, transfer queue. |
-
-The split exists so the interesting code can be tested against real servers on
-the JVM in seconds, rather than through an emulator.
+- Browse, download, upload, rename, delete, create folders
+- Configurable per-server start folder
+- In-app text viewer
+- Folder downloads and multi-select
+- Transfer queue UI with pause/resume and cancel abilities
+- Configurable downloads directory; full storage permissions not needed
+- Standard security features found in other popular FTP clients
+- Handles passive and active mode, `MLSD` with a  `LIST` fallback, and other edge cases
 
 ## Building
 
@@ -71,11 +36,8 @@ what a distributor such as F-Droid expects.
 
 ## Testing
 
-The test plan is written out in [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md), case by
-case, and was written before the implementation. Its structure was drawn from the
-suites of the major open-source clients — chiefly **Cyberduck**, whose FTP module
-devotes a whole package to server-dialect listing parsers, plus **FileZilla**,
-**curl** and **lftp**.
+The test suite structure was drawn from the suites of the major open-source clients
+— chiefly **Cyberduck**, plus **FileZilla**, **curl** and **lftp**.
 
 Nothing in the protocol layer is mocked. Every FTP case runs against a real
 **Apache FtpServer** and every SFTP case against a real **Apache MINA SSHD**,
