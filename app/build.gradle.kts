@@ -12,12 +12,6 @@ val keystoreProperties = Properties().apply {
     if (file.exists()) file.inputStream().use(::load)
 }
 
-// One place to change per release. F-Droid keys updates off versionCode, so it must
-// increase every time a build is published, and the git tag should match versionName
-// (versionName "1.4" -> tag "v1.4").
-val appVersionCode = 7
-val appVersionName = "1.6"
-
 android {
     namespace = "com.freeftp.app"
     compileSdk = 37
@@ -27,8 +21,12 @@ android {
         applicationId = "com.freeftp.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = appVersionCode
-        versionName = appVersionName
+        // Bump both per release and tag the commit to match (versionName "1.7" ->
+        // tag "v1.7"). Kept as literals here rather than behind a constant: F-Droid's
+        // update checker reads these values straight out of defaultConfig, and cannot
+        // resolve a reference.
+        versionCode = 8
+        versionName = "1.7"
     }
 
     signingConfigs {
