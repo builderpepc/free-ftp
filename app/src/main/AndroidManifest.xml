@@ -6,7 +6,6 @@
         android:name=".FreeFtpApp"
         android:icon="@mipmap/ic_launcher"
         android:label="FreeFTP"
-        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.FreeFTP">
         <!-- Lets a finished download be handed to another app to open, without making
              the file world-readable. -->

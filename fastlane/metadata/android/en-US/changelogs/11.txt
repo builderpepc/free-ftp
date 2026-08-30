@@ -1,0 +1,2 @@
+* No longer declares usesCleartextTraffic. FTP and SFTP use raw sockets, which
+  Android's cleartext policy never governed, so the app never needed it.

@@ -22,11 +22,11 @@ android {
         minSdk = 26
         targetSdk = 36
         // Bump both per release and tag the commit to match (versionName "1.7" ->
-        // tag "v1.9"). Kept as literals here rather than behind a constant: F-Droid's
+        // tag "v1.9.1"). Kept as literals here rather than behind a constant: F-Droid's
         // update checker reads these values straight out of defaultConfig, and cannot
         // resolve a reference.
-        versionCode = 10
-        versionName = "1.9"
+        versionCode = 11
+        versionName = "1.9.1"
     }
 
     signingConfigs {

@@ -1,8 +1,0 @@
-* Download whole folders, recursively.
-* Multi-select with long-press, for bulk download and delete.
-* "Download all in this folder", with confirmation for large jobs.
-* Pause and resume transfers; a paused transfer continues where it stopped.
-* Tap a finished download to open it.
-* Read text files in the app without downloading them.
-* Downloads now go to your Downloads folder, and can be pointed anywhere.
-* Back now walks up the remote folders instead of leaving the server.
