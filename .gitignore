@@ -1,0 +1,16 @@
+# Build output
+build/
+.gradle/
+local.properties
+
+# Local tooling config
+.claude/settings.local.json
+.kotlin/
+
+# Release signing material - never commit
+*.jks
+*.keystore
+keystore.properties
+
+# Distributable APKs
+dist/

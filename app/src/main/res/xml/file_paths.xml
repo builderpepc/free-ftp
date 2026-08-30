@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Downloads written to the app's own external folder. Shared only when the user
+         taps a finished transfer, and only with the app they choose to open it in. -->
+    <external-files-path name="downloads" path="Downloads/" />
+    <cache-path name="uploads" path="uploads/" />
+</paths>

@@ -1,0 +1,37 @@
+FreeFTP connects your phone to your own servers over FTP, FTPS and SFTP. It is
+free in both senses: no advertising, no paid tier, no analytics, and no account.
+
+The app talks to your servers and to nothing else. It holds one network
+permission, and the only host it ever contacts is the one you typed in.
+
+Features
+
+* FTP, FTPS (explicit and implicit) and SFTP in a single client.
+* Browse, download, upload, rename, delete and create folders.
+* Read files without downloading them. Tap any text file and it is streamed
+  straight into memory, with nothing written to your storage. The encoding is
+  detected and shown, so you can tell real content from mojibake.
+* Download whole folders, recursively, with their structure preserved.
+* Multi-select: long-press to start, then download or delete in bulk. Large jobs
+  ask for confirmation first, and deleting always asks.
+* A transfer queue with live progress, pause, resume, cancel and retry. A paused
+  transfer keeps what it has and continues from that point.
+* Downloads land in your Downloads folder, where you can actually find them, or
+  in any folder you choose. No storage permission is requested: you grant access
+  to the one folder you pick.
+
+Security
+
+* SSH host keys are checked. An unrecognised server is refused until you have
+  seen its SHA-256 fingerprint and accepted it, and a key that later changes is
+  refused outright.
+* TLS certificates are verified for FTPS, with an explicit opt-in for
+  self-signed ones.
+* Passwords, key passphrases and private keys are encrypted at rest with a key
+  held in the Android key store.
+* Password, SSH key (with passphrase) and anonymous authentication, falling back
+  automatically across publickey, password and keyboard-interactive.
+
+FreeFTP handles the awkward parts of real-world FTP: passive and active mode,
+MLSD with a LIST fallback, a dozen server listing dialects, UTF-8 negotiation,
+and resuming an interrupted transfer.

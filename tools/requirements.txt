@@ -1,0 +1,4 @@
+# Only needed to regenerate the launcher icon from art/FreeFTP.svg.
+# The app itself builds with no Python at all.
+cairosvg
+svgelements
