@@ -15,8 +15,8 @@ val keystoreProperties = Properties().apply {
 // One place to change per release. F-Droid keys updates off versionCode, so it must
 // increase every time a build is published, and the git tag should match versionName
 // (versionName "1.4" -> tag "v1.4").
-val appVersionCode = 6
-val appVersionName = "1.5"
+val appVersionCode = 7
+val appVersionName = "1.6"
 
 android {
     namespace = "com.freeftp.app"
